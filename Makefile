@@ -5,8 +5,10 @@ CC=gcc
 CFLAGS += -Wall -Werror -I$(INC_DIR)
 NAME=covert_tcp
 LINKS=
-SRC := covert_tcp.c
+
+SRC := main.c
 OBJ := $(SRC:.c=.o)
+
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -DDEBUG -ggdb
