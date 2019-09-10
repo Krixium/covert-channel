@@ -1,3 +1,23 @@
+#ifndef CONVERT_TCP_H
+#define CONVERT_TCP_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <string.h>
+#include <unistd.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <linux/ip.h>
+
+#define VERSION "1.1"
+
+/* Prototypes */
+
+/* This group of functiosn taken from Craig H. Rowland */
 /* Covert_TCP 1.0 - Covert channel file transfer for Linux
 * Written by Craig H. Rowland (crowland@psionic.com)
 * Copyright 1996 Craig H. Rowland (11-15-96)
@@ -24,25 +44,6 @@
 *
 * Small portions from various packet utilities by unknown authors
 */
-
-#ifndef CONVERT_TCP_H
-#define CONVERT_TCP_H
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <string.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <linux/ip.h>
-
-#define VERSION "1.1"
-
-/* Prototypes */
 void forgepacket(unsigned int, unsigned int, unsigned short, unsigned short,char *,int,int,int,int);
 unsigned short in_cksum(unsigned short *, int);
 unsigned int host_convert(char *);
