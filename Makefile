@@ -3,10 +3,10 @@
 DEBUG ?= 1
 CC=gcc
 CFLAGS += -Wall -Werror -I$(INC_DIR)
-NAME=covert_tcp
+NAME=covert
 LINKS=
 
-SRC := main.c
+SRC := forge.c net.c main.c
 OBJ := $(SRC:.c=.o)
 
 

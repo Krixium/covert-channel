@@ -1,18 +1,23 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <stdio.h>
+#include "forge.h"
+
+#define MODE_SERVER 1
+#define MODE_CLIENT 2
 
 struct progArgs
 {
-    unsigned int srcIp;
-    unsigned int dstIp;
-    unsigned short dstPort;
+    int mode;
     char filename[256];
-} progArgs;
+    char srcIp[16];
+    char dstIp[16];
+    unsigned short dstPort;
+};
 
 void parseArguments(int argc, char *argv[], struct progArgs *args);
 void usage(char *name);
+void printError(char *msg);
 
 int clnt(struct progArgs *args);
 int srvr(struct progArgs *args);
