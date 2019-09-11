@@ -179,13 +179,38 @@ int clnt(struct progArgs *args)
 
 int srvr(struct progArgs *args)
 {
+    struct RcvBuffer
+    {
+        struct iphdr ip;
+        struct udphdr udp;
+        char buffer[65535 - sizeof(struct iphdr) - sizeof(struct udphdr)];
+    };
+
     printf("Server Mode\n");
 
+    int sfd;
     FILE *outputFile = fopen(args->filename, "wb");
+    struct RcvBuffer buffer;
+    struct sockaddr_in srcAddr;
+
+    if (!getSockAddr(&srcAddr, args->srcIp, 0))
+    {
+        printError("Invalid source.");
+    }
+
+    if (!createRawSocket(&sfd))
+    {
+        printError("Could not create a socket.");
+    }
 
     while (1)
     {
+        read(sfd, &buffer, sizeof(struct RcvBuffer));
 
+        if (buffer.ip.saddr == srcAddr.sin_addr.s_addr)
+        {
+            printf("left part %c, right part %c\n", (char)(buffer.udp.source >> 8), (char)(buffer.udp.source);
+        }
     }
 
     fclose(outputFile);
