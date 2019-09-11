@@ -118,6 +118,7 @@ void usage(char *name)
     printf("\n");
     printf("\tServer Mode Required:\n");
     printf("\t\t-s - The ip of the client that is sending covert messages.\n");
+    printf("\t\t-p - The desired destination port of the packet.\n");
     printf("\t\t-f - The file to write incoming data into.\n");
 }
 
@@ -179,20 +180,23 @@ int clnt(struct progArgs *args)
 
 int srvr(struct progArgs *args)
 {
-    struct RcvBuffer
-    {
-        struct iphdr ip;
-        struct udphdr udp;
-        char buffer[65535 - sizeof(struct iphdr) - sizeof(struct udphdr)];
-    };
+    // there is something wrong with this buffer
+    // struct RcvBuffer
+    // {
+    //     struct iphdr ip;
+    //     struct udphdr udp;
+    //     char buffer[1000];
+    // };
 
     printf("Server Mode\n");
 
     int sfd;
     FILE *outputFile = fopen(args->filename, "wb");
-    struct RcvBuffer buffer;
+    char buffer[1024];
+    struct udphdr *udpHeader = (struct udphdr *)(buffer + 20);
+    struct sockaddr_in anyAddr;
     struct sockaddr_in srcAddr;
-    unsigned int len = sizeof(struct sockaddr_in);
+    unsigned int addrLen = sizeof(struct sockaddr_in);
 
     if (!getSockAddr(&srcAddr, args->srcIp, 0))
     {
@@ -204,13 +208,21 @@ int srvr(struct progArgs *args)
         printError("Could not create a socket.");
     }
 
-    bind(sfd, (struct sockaddr *)&srcAddr, len);
+    bzero(&anyAddr, sizeof(struct sockaddr_in));
+    anyAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    anyAddr.sin_port = htons(args->dstPort);
+    anyAddr.sin_family = AF_INET;
+
+    if ((bind(sfd, (struct sockaddr *)&anyAddr, addrLen)) == -1)
+    {
+        printError("Could not bind socket.");
+    }
 
     while (1)
     {
-        recvfrom(sfd, &buffer, sizeof(struct RcvBuffer), 0, (struct sockaddr *)&srcAddr, &len);
-        printf("data read\n");
-        printf("left part %c, right part %c\n", (char)(buffer.udp.source >> 8), (char)(buffer.udp.source));
+        bzero(buffer, 1024);
+        recvfrom(sfd, &buffer, 1024, 0, (struct sockaddr *)&srcAddr, &addrLen);
+        printf("received [%c]\n", udpHeader->source);
     }
 
     fclose(outputFile);

@@ -24,7 +24,7 @@ int getSockAddr(struct sockaddr_in *out, char *address, short port)
 
 int createRawSocket(int *sock)
 {
-    *sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+    *sock = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
 
     if (*sock < 0)
     {
