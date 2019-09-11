@@ -192,6 +192,7 @@ int srvr(struct progArgs *args)
     FILE *outputFile = fopen(args->filename, "wb");
     struct RcvBuffer buffer;
     struct sockaddr_in srcAddr;
+    unsigned int len = sizeof(struct sockaddr_in);
 
     if (!getSockAddr(&srcAddr, args->srcIp, 0))
     {
@@ -205,12 +206,9 @@ int srvr(struct progArgs *args)
 
     while (1)
     {
-        read(sfd, &buffer, sizeof(struct RcvBuffer));
-
-        if (buffer.ip.saddr == srcAddr.sin_addr.s_addr)
-        {
-            printf("left part %c, right part %c\n", (char)(buffer.udp.source >> 8), (char)(buffer.udp.source));
-        }
+        recvfrom(sfd, &buffer, sizeof(struct RcvBuffer), 0, (struct sockaddr *)&srcAddr, &len);
+        printf("data read\n");
+        printf("left part %c, right part %c\n", (char)(buffer.udp.source >> 8), (char)(buffer.udp.source));
     }
 
     fclose(outputFile);
