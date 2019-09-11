@@ -20,3 +20,16 @@ int getSockAddr(struct sockaddr_in *out, char *address, short port)
 
     return 1;
 }
+
+
+int createRawSocket(int *sock)
+{
+    *sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+
+    if (*sock < 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}

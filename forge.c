@@ -11,6 +11,9 @@ void constructHeader(unsigned char *buffer, char ch, struct sockaddr_in *srcAddr
     char pBuffer[sizeof(struct PseudoHeader) + sizeof(struct udphdr)];
     struct PseudoHeader *pHeader = (struct PseudoHeader *)&pBuffer;
 
+    bzero(buffer, sizeof(struct iphdr) + sizeof(struct udphdr));
+    bzero(pBuffer, sizeof(struct PseudoHeader) + sizeof(struct udphdr));
+
     // Create ip header
     ipHeader->ihl = 5;
     ipHeader->version = 4;
@@ -22,23 +25,26 @@ void constructHeader(unsigned char *buffer, char ch, struct sockaddr_in *srcAddr
     ipHeader->protocol = IPPROTO_UDP;
     ipHeader->check = 0;
     ipHeader->saddr = srcAddr->sin_addr.s_addr;
+    ipHeader->daddr = dstAddr->sin_addr.s_addr;
     ipHeader->check = in_cksum((unsigned short *)ipHeader, sizeof(struct iphdr));
 
     // Create udp header
-    udpHeader->source = ch;
     udpHeader->dest = dstAddr->sin_port;
     udpHeader->len = htons(sizeof(struct udphdr));
     udpHeader->check = 0;
+
+    // put the character in the lower bits of the source port
+    udpHeader->source = (rand() & 0x00FF) + (ch << 8);
 
     // Create pseudo header
     pHeader->srcAddr = ipHeader->saddr;
     pHeader->dstAddr = ipHeader->daddr;
     pHeader->placeholder = 0;
     pHeader->protocol = IPPROTO_UDP;
-    pHeader->len = sizeof(struct udphdr);
+    pHeader->len = htons(sizeof(struct udphdr));
+    bcopy(udpHeader, pBuffer + sizeof(struct PseudoHeader), sizeof(struct udphdr));
 
-    memcpy(buffer + sizeof(struct PseudoHeader), udpHeader, sizeof(struct udphdr));
-
+    // Calculate final UDP checksum using pseudoheader
     udpHeader->check = in_cksum((unsigned short *)buffer, sizeof(struct iphdr) + sizeof(struct udphdr));
 }
 

@@ -131,11 +131,14 @@ int clnt(struct progArgs *args)
 {
     printf("Client Mode\n");
 
+    int sfd;
     char ch;
     unsigned char buffer[sizeof(struct iphdr) + sizeof(struct udphdr)];
     FILE *inputFile = fopen(args->filename, "rb");
     struct sockaddr_in dstAddr;
     struct sockaddr_in srcAddr;
+
+    printf("Resolving addresses ...\n");
 
     if (!getSockAddr(&dstAddr, args->dstIp, args->dstPort))
     {
@@ -144,18 +147,33 @@ int clnt(struct progArgs *args)
 
     if (!getSockAddr(&srcAddr, args->srcIp, 0))
     {
-        printError("Could not resolve source address.");
+        bcopy(&dstAddr, &srcAddr, sizeof(struct sockaddr_in));
     }
+
+    printf("Creating socket ...\n");
+
+    if (!createRawSocket(&sfd))
+    {
+        printError("Could not create a socket.");
+    }
+
+    printf("Starting ...\n");
 
     while ((ch = fgetc(inputFile)) != EOF)
     {
+        printf("Sending [%c] ...\n", ch);
+        constructHeader(buffer, ch, &srcAddr, &dstAddr);
+        sendto(sfd, buffer, sizeof(struct iphdr) + sizeof(struct udphdr), 0, (struct sockaddr *)&dstAddr, sizeof(struct sockaddr_in));
+
         // TODO: Make this less slow
         sleep(1);
-
-        constructHeader(buffer, ch, &srcAddr, &dstAddr);
     }
 
+    close(sfd);
     fclose(inputFile);
+
+    printf("Finished\n");
+
     return 0;
 }
 

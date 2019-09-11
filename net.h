@@ -6,5 +6,6 @@
 #include <netinet/ip.h>
 
 int getSockAddr(struct sockaddr_in *out, char *address, short port);
+int createRawSocket(int *sock);
 
 #endif
