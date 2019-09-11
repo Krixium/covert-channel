@@ -204,6 +204,8 @@ int srvr(struct progArgs *args)
         printError("Could not create a socket.");
     }
 
+    bind(sfd, (struct sockaddr *)&srcAddr, len);
+
     while (1)
     {
         recvfrom(sfd, &buffer, sizeof(struct RcvBuffer), 0, (struct sockaddr *)&srcAddr, &len);
