@@ -209,7 +209,7 @@ int srvr(struct progArgs *args)
 
         if (buffer.ip.saddr == srcAddr.sin_addr.s_addr)
         {
-            printf("left part %c, right part %c\n", (char)(buffer.udp.source >> 8), (char)(buffer.udp.source);
+            printf("left part %c, right part %c\n", (char)(buffer.udp.source >> 8), (char)(buffer.udp.source));
         }
     }
 
