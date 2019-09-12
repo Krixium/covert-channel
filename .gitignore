@@ -1,0 +1,6 @@
+.vscode/
+
+covert
+
+*.o
+*.txt
