@@ -128,6 +128,19 @@ void printError(char *msg)
     exit(1);
 }
 
+// TODO: Cull this when done
+void printPacket(unsigned char *buffer, unsigned int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        printf("%02x\t", buffer[i]);
+        if (i % 4 == 3)
+        {
+            printf("\n");
+        }
+    }
+}
+
 int clnt(struct progArgs *args)
 {
     printf("Client Mode\n");
@@ -180,20 +193,11 @@ int clnt(struct progArgs *args)
 
 int srvr(struct progArgs *args)
 {
-    // there is something wrong with this buffer
-    // struct RcvBuffer
-    // {
-    //     struct iphdr ip;
-    //     struct udphdr udp;
-    //     char buffer[1000];
-    // };
-
     printf("Server Mode\n");
 
     int sfd;
     FILE *outputFile = fopen(args->filename, "wb");
-    char buffer[1024];
-    struct udphdr *udpHeader = (struct udphdr *)(buffer + 20);
+    unsigned char buffer[1024];
     struct sockaddr_in anyAddr;
     struct sockaddr_in srcAddr;
     unsigned int addrLen = sizeof(struct sockaddr_in);
@@ -222,7 +226,12 @@ int srvr(struct progArgs *args)
     {
         bzero(buffer, 1024);
         recvfrom(sfd, &buffer, 1024, 0, (struct sockaddr *)&srcAddr, &addrLen);
-        printf("received [%c]\n", udpHeader->source);
+
+        if (1) // validate this to be only from the source
+        {
+            printf("received [%c]\n", buffer[sizeof(struct iphdr) + HIDDEN_MSG_OFFSET - 1]);
+            fprintf(outputFile, "%c", buffer[sizeof(struct iphdr) + HIDDEN_MSG_OFFSET - 1]);
+        }
     }
 
     fclose(outputFile);

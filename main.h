@@ -6,6 +6,8 @@
 #define MODE_SERVER 1
 #define MODE_CLIENT 2
 
+#define HIDDEN_MSG_OFFSET 22
+
 struct progArgs
 {
     int mode;
@@ -18,6 +20,7 @@ struct progArgs
 void parseArguments(int argc, char *argv[], struct progArgs *args);
 void usage(char *name);
 void printError(char *msg);
+void printPacket(unsigned char *buffer, unsigned int size);
 
 int clnt(struct progArgs *args);
 int srvr(struct progArgs *args);
