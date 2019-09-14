@@ -194,9 +194,7 @@ void usage(char *name)
     printf("\t\t-s - source ip, the source ip to put into the packet(this can be any valid ip)\n");
     printf("\t\t-d - The desired destination ip of the packet.\n");
     printf("\t\t-p - The desired destination port of the packet.\n");
-    printf("\t\t-f - The file to send\n");
-    printf("\tClient Mode Optional:\n");
-    printf("\t\t-t - The amount of time in seconds to wait between each send. Default is 1 second.\n");
+    printf("\t\t-f - The file to send.\n");
     printf("\n");
     printf("\tServer Mode Required:\n");
     printf("\t\t-s - The ip of the client that is sending covert messages.\n");
