@@ -252,12 +252,17 @@ int clnt(struct progArgs *args)
     int sfd;
     char ch;
     unsigned char buffer[sizeof(struct iphdr) + sizeof(struct udphdr)];
-    FILE *inputFile = fopen(args->filename, "rb");
+    FILE *inputFile;
     struct sockaddr_in dstAddr;
     struct sockaddr_in srcAddr;
 
-    printf("Resolving addresses ...\n");
+    printf("Openning file ...\n");
+    if (inputFile = fopen(args->filename, "rb") == NULL)
+    {
+        printError("Could not open file.");
+    }
 
+    printf("Resolving addresses ...\n");
     if (!getSockAddr(&dstAddr, args->dstIp, args->dstPort))
     {
         printError("Could not resolve destination address.");
@@ -269,15 +274,12 @@ int clnt(struct progArgs *args)
     }
 
     printf("Creating socket ...\n");
-
     if ((sfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
     {
         printError("Could not create a socket.");
     }
 
-
     printf("Starting ...\n");
-
     while ((ch = fgetc(inputFile)) != EOF)
     {
         printf("Sending [%c] ...\n", ch);
@@ -321,7 +323,7 @@ int srvr(struct progArgs *args)
     printf("Server Mode\n");
 
     int sfd;
-    FILE *outputFile = fopen(args->filename, "wb");
+    FILE *outputFile;
     unsigned char buffer[1024];
     struct udphdr *udpHeader = (struct udphdr *)(buffer + sizeof(struct iphdr));
     struct sockaddr_in anyAddr;
@@ -329,12 +331,20 @@ int srvr(struct progArgs *args)
     struct sockaddr_in srcAddr;
     unsigned int addrLen = sizeof(struct sockaddr_in);
 
+    printf("Openning file ...\n");
+    if (outputFile = fopen(args->filename, "wb") == NULL)
+    {
+        printError("Could not open file.");
+    }
+
+    printf("Resolving addresses ...\n");
     bzero(&targetAddr, sizeof(struct sockaddr_in));
     if (!getSockAddr(&targetAddr, args->srcIp, args->dstPort))
     {
         printError("Could not resolve client ip");
     }
 
+    printf("Creating socket ...\n");
     if ((sfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) < 0)
     {
         printError("Could not create a socket.");
@@ -354,6 +364,7 @@ int srvr(struct progArgs *args)
     {
         bzero(buffer, 1024);
         recvfrom(sfd, &buffer, 1024, 0, (struct sockaddr *)&srcAddr, &addrLen);
+        printf("Waiting ...");
 
         if (targetAddr.sin_addr.s_addr == srcAddr.sin_addr.s_addr)
         {
@@ -362,6 +373,7 @@ int srvr(struct progArgs *args)
         }
     }
 
+    close(sfd);
     fclose(outputFile);
     return 0;
 }
