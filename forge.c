@@ -1,8 +1,50 @@
+/*---------------------------------------------------------------------------------------
+-- SOURCE FILE:             forge.c - Main logic for crafting packets.
+--
+-- PROGRAM:                 covert
+--
+-- FUNCTIONS:
+--                          void constructHeader(unsigned char *buffer, char ch, struct sockaddr_in *srcAddr, struct sockaddr_in *dstAddr)
+--                          unsigned short in_cksum(unsigned short *, int)
+--
+-- DATE:                    Sept 12, 2019
+--
+-- REVISIONS:               N/A
+--
+-- DESIGNERS:               Benny Wang
+--
+-- PROGRAMMERS:             Benny Wang
+--
+-- NOTES:
+--                          Contains functions that crafts udp packets for the covert
+--                          channel.
+---------------------------------------------------------------------------------------*/
 #include "forge.h"
 
 #include <stdlib.h>
 #include <string.h>
 
+/*---------------------------------------------------------------------------------------
+-- FUNCTION:                constructHeader
+--
+-- DATE:                    Sept 12, 2019
+--
+-- REVISIONS:               N/A
+--
+-- DESIGNER:                Benny Wang
+--
+-- PROGRAMMER:              Benny Wang
+--
+-- INTERFACE:               void constructHeader(unsigned char *buffer, char ch, struct sockaddr_in *srcAddr, struct sockaddr_in *dstAddr)
+--                              unsigned char *buffer: The buffer to write into. Must be large enough to hold both IP and UDP header.
+--                              char ch: The character to send over in the packet.
+--                              struct sockaddr_in *srcAddr: The destination.
+--                              struct sockaddr_in *dstAddr: The source.
+--
+-- NOTES:
+--                          Crafts a valid IP/UDP header with a character hidden in the
+--                          lower byte of the UDP source field.
+---------------------------------------------------------------------------------------*/
 void constructHeader(unsigned char *buffer, char ch, struct sockaddr_in *srcAddr, struct sockaddr_in *dstAddr)
 {
     struct iphdr *ipHeader = (struct iphdr *)buffer;

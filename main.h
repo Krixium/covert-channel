@@ -6,8 +6,6 @@
 #define MODE_SERVER 1
 #define MODE_CLIENT 2
 
-#define HIDDEN_MSG_OFFSET 22
-
 struct progArgs
 {
     int mode;
