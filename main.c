@@ -290,7 +290,7 @@ int clnt(struct progArgs *args)
     printf("Starting ...\n");
     while ((ch = fgetc(inputFile)) != EOF)
     {
-        printf("Sending [%c] ...\n", ch);
+        printf("sending \t character[%c] \t hex[%02x]\n", ch, (int)ch);
         constructHeader(buffer, ch, &srcAddr, &dstAddr);
         sendto(sfd, buffer, sizeof(struct iphdr) + sizeof(struct udphdr), 0, (struct sockaddr *)&dstAddr, sizeof(struct sockaddr_in));
 
@@ -378,6 +378,7 @@ int srvr(struct progArgs *args)
         {
             printf("received \t character[%c] \t hex[%02x]\n", udpHeader->source >> 8, udpHeader->source >> 8);
             fprintf(outputFile, "%c", udpHeader->source >> 8);
+            fflush(outputFile);
         }
     }
 
