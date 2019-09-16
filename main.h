@@ -9,6 +9,7 @@
 struct progArgs
 {
     int mode;
+    int sleep;
     char filename[256];
     char srcIp[16];
     char dstIp[16];

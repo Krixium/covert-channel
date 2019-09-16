@@ -118,7 +118,7 @@ void parseArguments(int argc, char *argv[], struct progArgs *args)
 {
     int c;
 
-    while ((c = getopt(argc, argv, "d:p:f:s:")) != -1)
+    while ((c = getopt(argc, argv, "d:p:f:s:t:")) != -1)
     {
         switch ((c))
         {
@@ -133,6 +133,9 @@ void parseArguments(int argc, char *argv[], struct progArgs *args)
                 break;
             case 's':
                 strcpy(args->srcIp, optarg);
+                break;
+            case 't':
+                args->sleep = atoi(optarg) * 1000;
                 break;
             default:
                 break;
@@ -154,6 +157,11 @@ void parseArguments(int argc, char *argv[], struct progArgs *args)
         if (!args->dstPort)
         {
             printError("Missing destination port.");
+        }
+
+        if (args->sleep < 0)
+        {
+            args->sleep = 1000 * 1000;
         }
     }
     else if (args->mode == MODE_SERVER)
@@ -195,6 +203,8 @@ void usage(char *name)
     printf("\t\t-d - The desired destination ip of the packet.\n");
     printf("\t\t-p - The desired destination port of the packet.\n");
     printf("\t\t-f - The file to send.\n");
+    printf("\tClient Mode Optional:\n");
+    printf("\t\t-t - The time between packets in milliseconds.\n");
     printf("\n");
     printf("\tServer Mode Required:\n");
     printf("\t\t-s - The ip of the client that is sending covert messages.\n");
@@ -257,7 +267,7 @@ int clnt(struct progArgs *args)
     struct sockaddr_in srcAddr;
 
     printf("Openning file ...\n");
-    if (inputFile = fopen(args->filename, "rb") == NULL)
+    if ((inputFile = fopen(args->filename, "rb")) == NULL)
     {
         printError("Could not open file.");
     }
@@ -286,7 +296,7 @@ int clnt(struct progArgs *args)
         constructHeader(buffer, ch, &srcAddr, &dstAddr);
         sendto(sfd, buffer, sizeof(struct iphdr) + sizeof(struct udphdr), 0, (struct sockaddr *)&dstAddr, sizeof(struct sockaddr_in));
 
-        sleep(1);
+        usleep(args->sleep);
     }
 
     close(sfd);
@@ -332,7 +342,7 @@ int srvr(struct progArgs *args)
     unsigned int addrLen = sizeof(struct sockaddr_in);
 
     printf("Openning file ...\n");
-    if (outputFile = fopen(args->filename, "wb") == NULL)
+    if ((outputFile = fopen(args->filename, "wb")) == NULL)
     {
         printError("Could not open file.");
     }
@@ -364,11 +374,11 @@ int srvr(struct progArgs *args)
     {
         bzero(buffer, 1024);
         recvfrom(sfd, &buffer, 1024, 0, (struct sockaddr *)&srcAddr, &addrLen);
-        printf("Waiting ...");
+        printf("Waiting ...\n");
 
         if (targetAddr.sin_addr.s_addr == srcAddr.sin_addr.s_addr)
         {
-            printf("received character [%c]\n", udpHeader->source >> 8);
+            printf("received \t character[%c] \t hex[%02x]\n", udpHeader->source >> 8, udpHeader->source >> 8);
             fprintf(outputFile, "%c", udpHeader->source >> 8);
         }
     }
