@@ -118,6 +118,8 @@ void parseArguments(int argc, char *argv[], struct progArgs *args)
 {
     int c;
 
+    args->sleep = 1000 * 1000;
+
     while ((c = getopt(argc, argv, "d:p:f:s:t:")) != -1)
     {
         switch ((c))
@@ -159,10 +161,6 @@ void parseArguments(int argc, char *argv[], struct progArgs *args)
             printError("Missing destination port.");
         }
 
-        if (args->sleep < 0)
-        {
-            args->sleep = 1000 * 1000;
-        }
     }
     else if (args->mode == MODE_SERVER)
     {
